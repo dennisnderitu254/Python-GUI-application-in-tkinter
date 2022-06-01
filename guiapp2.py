@@ -11,6 +11,8 @@ import mysql.connector
 class Campusreg(Frame):
     def __init__(self):
         self.DB = DB()
+        details = self.DB.select_all()
+       
         self.root = Tk()
         # self.stud_regno = StringVar()
         self.root.geometry("1000x600")
@@ -41,6 +43,12 @@ class Campusreg(Frame):
 
         self.studcounty_entry = Entry(self.root, width=25, borderwidth = 8)
         self.studcounty_entry.grid(row=4, column=2)
+        
+        self.search = Label(self.root , text="Search", width = 10)
+        self.search.grid(row=5,column=2)
+
+        self.search_entry = Entry(self.root, text="Search", width = 25, borderwidth = 8)
+        self.search_entry.grid(row = 6, column = 3)
 
         self.register = Button(self.root, text="Register", width = 10, command=self.add_student)
         self.register.grid(row = 5, column = 1, padx=5)
@@ -57,12 +65,6 @@ class Campusreg(Frame):
         self.showall = Button(self.root, text="ShowAll", width = 10, command = self.showdata)
         self.showall.grid(row = 5, column = 5)
 
-        self.search = Label(self.root , text="Search", width = 10)
-        self.search.grid(row=11,column=2)
-
-        self.search_entry = Entry(self.root, text="Search", width = 25, borderwidth = 8)
-        self.search_entry.grid(row = 11, column = 3)
-
         self.showinfo = Label(self.root , textvariable= self.var, width = 10)
         self.showinfo.grid(row=13,column=2)
         
@@ -75,6 +77,8 @@ class Campusreg(Frame):
             self.listBox.place(x=50, y=200)
             
         self.listBox.bind('<Double-Button-1>',self.getvalue)
+        
+        self.handle_details(details)
 
 
         self.root.mainloop()
@@ -135,6 +139,8 @@ class Campusreg(Frame):
         
         details = self.DB.addstudent(student_name,student_email,student_county)
         
+        return details
+        
         # self.handle_details(details)
     
     def update_student(self):
@@ -145,10 +151,14 @@ class Campusreg(Frame):
         
         details = self.DB.updatestudent(student_id,student_name,student_email,student_county)
         
+        return details
+        
     def delete_student(self):
         student_id = self.reg_entry.get()
         
         details = self.DB.deletestudent(student_id)
+        
+        return details
         
         
         
