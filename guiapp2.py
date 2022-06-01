@@ -45,13 +45,13 @@ class Campusreg(Frame):
         self.register = Button(self.root, text="Register", width = 10, command=self.add_student)
         self.register.grid(row = 5, column = 1, padx=5)
   
-        self.update = Button(self.root, text="Update", width = 10)
+        self.update = Button(self.root, text="Update", width = 10, command=self.update_student)
         self.update.grid(row = 5, column = 2)
 
-        self.delete = Button(self.root, text="Delete", width = 10)
+        self.delete = Button(self.root, text="Delete", width = 10, command=self.delete_student)
         self.delete.grid(row = 5, column = 3)
 
-        self.clear = Button(self.root, text="Clear", width = 10)
+        self.clear = Button(self.root, text="Clear", width = 10, command=self.clearentry)
         self.clear.grid(row = 5, column = 4)
 
         self.showall = Button(self.root, text="ShowAll", width = 10, command = self.showdata)
@@ -68,7 +68,7 @@ class Campusreg(Frame):
         
         self.cols = ('student_registration', 'student_name', 'student_email','student_county')
         self.listBox = ttk.Treeview(self.root, columns=self.cols, show='headings' )
-        
+       
         for col in self.cols:
             self.listBox.heading(col, text=col)
             self.listBox.grid(row=1, column=0, columnspan=2)
@@ -136,8 +136,24 @@ class Campusreg(Frame):
         details = self.DB.addstudent(student_name,student_email,student_county)
         
         # self.handle_details(details)
-             
-
+    
+    def update_student(self):
+        student_id = self.reg_entry.get()
+        student_name = self.studname_entry.get()
+        student_email = self.studemail_entry.get()
+        student_county = self.studcounty_entry.get()
+        
+        details = self.DB.updatestudent(student_id,student_name,student_email,student_county)
+        
+    def delete_student(self):
+        student_id = self.reg_entry.get()
+        
+        details = self.DB.deletestudent(student_id)
+        
+        
+        
+    
+        
 
 class DB():
     def __init__(self, host='localhost', user='admin', password='Root@1234', database='campus_registration'):
@@ -153,25 +169,21 @@ class DB():
                    )
         # self.cur = self.conn.cursor()
         # self.conn.commit()
+        
 
     def select_all(self):
-        details = None
+        # details = None
         obj = self.mydb.cursor()
         obj.callproc("list_students")
         
 
         for result in obj.stored_results():
             details = result.fetchall()
-            # print(details)
-            # messagebox('students',details)
-
-            # for det in details:
-            #     print(det)
-
+    
         return details
 
     def searchstudent(self, studname):
-        details = None
+        # details = None
         obj = self.mydb.cursor()
         obj.callproc("search_student", [studname])
         
@@ -180,33 +192,52 @@ class DB():
             details = result.fetchall()
             
         return details
-
-
-    def updatestudent(self, studentreg, studentname, studentemail, studentcounty):
-        self.details = None
-        obj = self.mydb.cursor()
-        obj.callproc("update_student",[studentreg], [studentname], [studentemail], [studentcounty])
-        
-        
-        for result in obj.stored_results():
-            details = result.fetchall()
-        
-        return details
-        
-       
     
-    def addstudent(self, name, email, county):
-        details = None
+    def search_id(self, studreg):
         obj = self.mydb.cursor()
-        obj.callproc("insert_student", [name, email, county])
+        obj.callproc("search_student_id", [studreg])
         
         for result in obj.stored_results():
             details = result.fetchall()
-            print(details)
             
         return details
+        
+        
+    def updatestudent(self, studentreg, studentname, studentemail, studentcounty):
+        # self.details = None
+        obj = self.mydb.cursor()
+        obj.callproc("update_student",(studentreg,studentname,studentemail,studentcounty))
+        
+        print("Updated")
+        
+        details = self.select_all()
+        
+        print(details)
+        # for result in obj.stored_results():
+        #     details = result.fetchall()
+        
+        return details
+
             
-            
+    def addstudent(self,name,email,county):
+        # details = None
+        obj = self.mydb.cursor()
+        obj.callproc("insert_student",(name,email,county))
+        
+        details = self.select_all() 
+        print(details)
+        
+        # for result in obj.stored_results():
+        #     details = result.fetchall()
+    
+        return details
+    
+    def deletestudent(self, studreg):
+        obj = self.mydb.cursor()
+        obj.callproc("delete_student", [studreg])
+        
+        details = self.select_all()
+        print(details)
             
 
     def __exit__(self):
@@ -216,17 +247,35 @@ class DB():
 
 def main():
     # Campusreg().mainloop()
-    # r = Campusreg()
+    r = Campusreg()
     # r.select_all()
     # r.getroot().title("Uni Registration")
     # print()
-    # r.mainloop()
+    r.mainloop()
     
-    r = DB()
+    # r = DB()
     
-    k = r.addstudent('Kerry Rowland' , 'kerryrowland@yahoo.com', 'Arizona')
+    # z = r.search_id(9)
     
-    print(k)
+    # print(z)
+    
+    # s = r.addstudent("Erik Klay","erikklay@gmail.com","EX")
+    
+    # print(s)
+    
+    # k = r.select_all()
+    
+    # print(k)
+    # my_values = ['Kerry Rowland' , 'kerryrowland@yahoo.com', 'Arizona']
+    
+    # k = r.addstudent(my_values)
+    
+      
+    # print(k)
+    
+    # u = r.select_all()
+    
+    # print(u)
 
 if __name__ == '__main__':
     main()
