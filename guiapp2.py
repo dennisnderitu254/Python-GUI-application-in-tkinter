@@ -31,6 +31,9 @@ class Campusreg(Frame):
 
         self.stud_county = Label(self.root , text="Student County:", width = 25)
         self.stud_county.grid(row=4,column=1)
+        
+        self.search = Label(self.root , text="Search:", width = 10)
+        self.search.grid(row=5,column=1)
 
         self.reg_entry = Entry(self.root, width=25, borderwidth=8)
         self.reg_entry.grid(row=1, column=2)
@@ -44,26 +47,24 @@ class Campusreg(Frame):
         self.studcounty_entry = Entry(self.root, width=25, borderwidth = 8)
         self.studcounty_entry.grid(row=4, column=2)
         
-        self.search = Label(self.root , text="Search", width = 10)
-        self.search.grid(row=5,column=2)
 
         self.search_entry = Entry(self.root, text="Search", width = 25, borderwidth = 8)
-        self.search_entry.grid(row = 6, column = 3)
+        self.search_entry.grid(row = 5, column = 2)
 
         self.register = Button(self.root, text="Register", width = 10, command=self.add_student)
-        self.register.grid(row = 5, column = 1, padx=5)
+        self.register.grid(row = 1, column = 7, padx=5)
   
         self.update = Button(self.root, text="Update", width = 10, command=self.update_student)
-        self.update.grid(row = 5, column = 2)
+        self.update.grid(row = 2, column = 7)
 
         self.delete = Button(self.root, text="Delete", width = 10, command=self.delete_student)
-        self.delete.grid(row = 5, column = 3)
+        self.delete.grid(row = 3, column = 7)
 
         self.clear = Button(self.root, text="Clear", width = 10, command=self.clearentry)
-        self.clear.grid(row = 5, column = 4)
+        self.clear.grid(row = 4, column = 7)
 
         self.showall = Button(self.root, text="ShowAll", width = 10, command = self.showdata)
-        self.showall.grid(row = 5, column = 5)
+        self.showall.grid(row = 5, column = 7)
 
         self.showinfo = Label(self.root , textvariable= self.var, width = 10)
         self.showinfo.grid(row=13,column=2)
@@ -132,6 +133,7 @@ class Campusreg(Frame):
         self.addvalue()
         
     def add_student(self):
+        
         # student_id = self.reg_entry.get()
         student_name = self.studname_entry.get()
         student_email = self.studemail_entry.get()
@@ -141,8 +143,7 @@ class Campusreg(Frame):
         
         return details
         
-        # self.handle_details(details)
-    
+                
     def update_student(self):
         student_id = self.reg_entry.get()
         student_name = self.studname_entry.get()
@@ -159,10 +160,6 @@ class Campusreg(Frame):
         details = self.DB.deletestudent(student_id)
         
         return details
-        
-        
-        
-    
         
 
 class DB():
@@ -184,71 +181,94 @@ class DB():
     def select_all(self):
         # details = None
         obj = self.mydb.cursor()
-        obj.callproc("list_students")
         
-
-        for result in obj.stored_results():
-            details = result.fetchall()
+        try:
+            obj.callproc("list_students")
+        
+            for result in obj.stored_results():
+                details = result.fetchall()
     
-        return details
+            return details
+        except Exception as e:
+            print(e)
+            self.mydb.close()
+        
 
     def searchstudent(self, studname):
-        # details = None
         obj = self.mydb.cursor()
-        obj.callproc("search_student", [studname])
+        try:
+            obj.callproc("search_student", [studname])
         
 
-        for result in obj.stored_results():
-            details = result.fetchall()
+            for result in obj.stored_results():
+                details = result.fetchall()
             
-        return details
+            return details
+        
+        except Exception as e:
+            print(e)
+            self.mydb.close()
+        
     
     def search_id(self, studreg):
         obj = self.mydb.cursor()
-        obj.callproc("search_student_id", [studreg])
         
-        for result in obj.stored_results():
-            details = result.fetchall()
+        try:
+            obj.callproc("search_student_id", [studreg])
+        
+            for result in obj.stored_results():
+                details = result.fetchall()
             
-        return details
+            return details
         
+        except Exception as e:
+            print(e)
+            self.mydb.close()
         
     def updatestudent(self, studentreg, studentname, studentemail, studentcounty):
-        # self.details = None
         obj = self.mydb.cursor()
-        obj.callproc("update_student",(studentreg,studentname,studentemail,studentcounty))
         
-        print("Updated")
+        try:
+            obj.callproc("update_student",(studentreg,studentname,studentemail,studentcounty))
         
-        details = self.select_all()
+            details = self.select_all()
         
-        print(details)
-        # for result in obj.stored_results():
-        #     details = result.fetchall()
+            print(details)
         
-        return details
-
-            
+            return details
+        
+        except Exception as e:
+            print(e)
+            self.mydb.close()
+        
+     
     def addstudent(self,name,email,county):
-        # details = None
         obj = self.mydb.cursor()
-        obj.callproc("insert_student",(name,email,county))
         
-        details = self.select_all() 
-        print(details)
+        try:
+            obj.callproc("insert_student",(name,email,county))
         
-        # for result in obj.stored_results():
-        #     details = result.fetchall()
-    
-        return details
+            details = self.select_all() 
+            print(details)
+        
+            return details
+        except Exception as e:
+            print(e)
+            self.mydb.close()
     
     def deletestudent(self, studreg):
         obj = self.mydb.cursor()
-        obj.callproc("delete_student", [studreg])
         
-        details = self.select_all()
-        print(details)
+        try:
+            obj.callproc("delete_student", [studreg])
+        
+            details = self.select_all()
+            print(details)
             
+        except Exception as e:
+            print(e)
+            self.mydb.cursor()
+       
 
     def __exit__(self):
         self.mydb.close()
